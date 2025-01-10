@@ -70,7 +70,13 @@ function CombineXP:loadMaterialQtyFx()
 
         realFruitType.mrMaterialQtyFx = Utils.getNoNil(getXMLFloat(xmlFile, fruitTypeName .. "#mrMaterialQtyFx"), 1);
 
-        for _, v in pairs(g_currentMission.fruitTypeManager.fruitTypes) do
+        --Logging.error("LOGGER : ", xmlFile)
+        --Logging.error("g currentmission fruittypes: ", g_fruitTypeManager:getFruitTypes())
+
+        -- for _, v in pairs(g_currentMission.fruitTypeManager.fruitTypes) do
+        
+        for _, v in pairs(g_fruitTypeManager:getFruitTypes()) do
+            Logging.error("Fruit type '%s' from fruitTypes.xml is missing in fruitTypeManager.", realFruitType.name, " V: ", v)
             if realFruitType.name:lower() == v.name:lower() then
                 v.mrMaterialQtyFx = realFruitType.mrMaterialQtyFx
             end
