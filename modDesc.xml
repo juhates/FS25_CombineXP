@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <modDesc descVersion="92">
     <author>yumi</author>
-    <version>1.0.0.3</version>        
+    <version>1.0.0.4</version>        
     <title>
         <en>Combine XPerience</en>
     </title>
@@ -131,6 +131,15 @@ Fixed in v1.0.0.3
     
     <extraSourceFiles>
         <sourceFile filename="src/main.lua" />
+
+        <!-- omat -->
+        <sourceFile filename="CombineHUD.lua"/>
+        <sourceFile filename="CombineSettings.lua"/>
+        <sourceFile filename="CombineXP.lua"/>
+        <sourceFile filename="xpCombineEvent.lua"/>
+        <sourceFile filename="xpCombine.lua"/>
+        <sourceFile filename="xpCombineStateRequestEvent.lua"/>
+        <sourceFile filename="xpCutter.lua"/>
     </extraSourceFiles>
 
     <l10n>
