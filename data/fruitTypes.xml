@@ -22,4 +22,14 @@
     <fruitType name="sunflower"     literPerSqm="0.5200" seedUsagePerSqm="0.0030" mrMaterialQtyFx="0.62" />    <!-- no straw, poor yield, easy to thresh => combine limited by "damaging" the grain/loss while treshing -->
     <fruitType name="wheat"         literPerSqm="0.8900" seedUsagePerSqm="0.0230" windrowLiterPerSqm="4.5"  mrMaterialQtyFx="1" />    <!-- reference crop for materialQty compared to yield. windrow = about 4T per Ha -->
     <fruitType name="sorghum"     	literPerSqm="0.5200" seedUsagePerSqm="0.0030" mrMaterialQtyFx="0.8" />    <!-- no straw, poor yield, easy to thresh => combine limited by "damaging" the grain/loss while treshing -->
+    <fruitType name="rice"                         literPerSqm="0.5200" seedUsagePerSqm="0.0030" mrMaterialQtyFx="0.8" />
+    <fruitType name="riceLongGrain"                literPerSqm="0.5200" seedUsagePerSqm="0.0030" mrMaterialQtyFx="0.8" />
+    <fruitType name="grape"                        literPerSqm="0.5200" seedUsagePerSqm="0.0030" mrMaterialQtyFx="0.8" />
+    <fruitType name="olive"                        literPerSqm="0.5200" seedUsagePerSqm="0.0030" mrMaterialQtyFx="0.8" />
+    <fruitType name="beetRoot"                     literPerSqm="0.5200" seedUsagePerSqm="0.0030" mrMaterialQtyFx="0.8" />
+    <fruitType name="carrot"                       literPerSqm="0.5200" seedUsagePerSqm="0.0030" mrMaterialQtyFx="0.8" />
+    <fruitType name="parsnip"                      literPerSqm="0.5200" seedUsagePerSqm="0.0030" mrMaterialQtyFx="0.8" />
+    <fruitType name="greenBean"                    literPerSqm="0.5200" seedUsagePerSqm="0.0030" mrMaterialQtyFx="0.8" />
+    <fruitType name="pea"                          literPerSqm="0.5200" seedUsagePerSqm="0.0030" mrMaterialQtyFx="0.8" />
+    <fruitType name="spinach"                      literPerSqm="0.5200" seedUsagePerSqm="0.0030" mrMaterialQtyFx="0.8" />
 </fruitTypes>
