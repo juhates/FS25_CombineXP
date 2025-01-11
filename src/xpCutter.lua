@@ -19,11 +19,11 @@ function xpCutter:onEndWorkAreaProcessing(superFunc, dt, hasProcessed)
     -- if xpCutter.debug then print("xpCutter:onEndWorkAreaProcessing") end
     superFunc(self, dt, hasProcessed)
     if self.isServer then
-        local spec = Utils.getNoNil(self.spec_cutter, 0)
-        local lastRealArea = Utils.getNoNil(spec.workAreaParameters.lastRealArea, 0)
-        local lastThreshedArea = Utils.getNoNil(spec.workAreaParameters.lastThreshedArea, 0)
+        local spec = Utils.getNoNil(self.spec_cutter, 1)
+        local lastRealArea = Utils.getNoNil(spec.workAreaParameters.lastArea, 1)
+        local lastThreshedArea = Utils.getNoNil(spec.workAreaParameters.lastThreshedArea, 1)
         if spec.workAreaParameters.combineVehicle then
-            local spec_xpCombine = Utils.getNoNil(spec.workAreaParameters.combineVehicle.spec_xpCombine, 0)
+            local spec_xpCombine = Utils.getNoNil(spec.workAreaParameters.combineVehicle.spec_xpCombine, 1)
             if lastRealArea > 0 and lastThreshedArea > 0 then
                 local multiplier = lastRealArea / lastThreshedArea
                 -- print("multiplier : "..tostring(multiplier))
