@@ -11,6 +11,7 @@ function xpCutter:onLoad(superFunc, savegame)
         spec.turnedOnByAttacherVehicle = false
     end
 end
+
 Cutter.onLoad = Utils.overwrittenFunction(Cutter.onLoad, xpCutter.onLoad)
 
 -- Store multiplier to compute yield depending on threshed area
@@ -18,11 +19,11 @@ function xpCutter:onEndWorkAreaProcessing(superFunc, dt, hasProcessed)
     -- if xpCutter.debug then print("xpCutter:onEndWorkAreaProcessing") end
     superFunc(self, dt, hasProcessed)
     if self.isServer then
-        local spec = self.spec_cutter
-        local lastRealArea = spec.workAreaParameters.lastRealArea
-        local lastThreshedArea = spec.workAreaParameters.lastThreshedArea
+        local spec = Utils.getNoNil(self.spec_cutter, 0)
+        local lastRealArea = Utils.getNoNil(spec.workAreaParameters.lastRealArea, 0)
+        local lastThreshedArea = Utils.getNoNil(spec.workAreaParameters.lastThreshedArea, 0)
         if spec.workAreaParameters.combineVehicle then
-            local spec_xpCombine = spec.workAreaParameters.combineVehicle.spec_xpCombine
+            local spec_xpCombine = Utils.getNoNil(spec.workAreaParameters.combineVehicle.spec_xpCombine, 0)
             if lastRealArea > 0 and lastThreshedArea > 0 then
                 local multiplier = lastRealArea / lastThreshedArea
                 -- print("multiplier : "..tostring(multiplier))
@@ -33,4 +34,6 @@ function xpCutter:onEndWorkAreaProcessing(superFunc, dt, hasProcessed)
         end
     end
 end
-Cutter.onEndWorkAreaProcessing = Utils.overwrittenFunction(Cutter.onEndWorkAreaProcessing, xpCutter.onEndWorkAreaProcessing)
+
+Cutter.onEndWorkAreaProcessing = Utils.overwrittenFunction(Cutter.onEndWorkAreaProcessing,
+    xpCutter.onEndWorkAreaProcessing)

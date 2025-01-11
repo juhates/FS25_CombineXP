@@ -76,7 +76,7 @@ function CombineXP:loadMaterialQtyFx()
         -- for _, v in pairs(g_currentMission.fruitTypeManager.fruitTypes) do
         
         for _, v in pairs(g_fruitTypeManager:getFruitTypes()) do
-            Logging.error("Fruit type '%s' from fruitTypes.xml is missing in fruitTypeManager.", realFruitType.name, " V: ", v)
+            --Logging.info("Fruit type '%s' tulee realfruittype.", realFruitType.name, v.name)
             if realFruitType.name:lower() == v.name:lower() then
                 v.mrMaterialQtyFx = realFruitType.mrMaterialQtyFx
             end
@@ -105,7 +105,7 @@ function CombineXP:loadDependantSpeed()
     end
     if xmlFile then
         local powerBoost = Utils.getNoNil(tonumber(getXMLString(xmlFile, "combineXP.vehicles"..string.format("#powerBoost"))), 0)
-        g_combinexp.powerBoost = MathUtil.clamp(powerBoost, 0, 100)
+        g_combinexp.powerBoost = 8 -- TODO
         g_combinexp.powerDependantSpeed.isActive = Utils.getNoNil(getXMLBool(xmlFile, "combineXP.powerDependantSpeed" .. string.format("#isActive")), true)
         g_combinexp.timeDependantSpeed.isActive = Utils.getNoNil(getXMLBool(xmlFile, "combineXP.timeDependantSpeed" .. string.format("#isActive")), true)
         g_combinexp.timeDependantSpeed.cereal = AnimCurve.new(linearInterpolator1)
