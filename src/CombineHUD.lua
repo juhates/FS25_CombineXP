@@ -1,4 +1,3 @@
-
 ---@class CombineHUD
 CombineHUD = {}
 CombineHUD.INPUT_CONTEXT_NAME = "COMBINE_HUD"
@@ -93,7 +92,7 @@ function CombineHUD:createElements()
     local iconSmallMarginWidth, _ = self:scalePixelToScreenVector(CombineHUD.SIZE.ICON_SMALL_MARGIN)
 
     self.main = self:createMainBox(nil, rightX - marginWidth, bottomY + marginHeight)
-    self.speedMeterDisplay:addChild(self.main)
+    self.speedMeterDisplay:new(self.main)
 
     self.base = self:createBaseBox(self.uiFilename, rightX - marginWidth, bottomY + marginHeight)
     self.main:addChild(self.base)
@@ -105,7 +104,8 @@ function CombineHUD:createElements()
     self.iconMass = self:createIcon(self.uiFilename, posX, posY, iconSmallWidth, iconSmallHeight, CombineHUD.UV.MASS)
     self.Mass = HUDElement.new(self.iconMass)
 
-    self.iconSlash = self:createIcon(self.uiFilename, posX + iconMarginWidth, posY, iconSmallWidth, iconSmallHeight, CombineHUD.UV.SLASH)
+    self.iconSlash = self:createIcon(self.uiFilename, posX + iconMarginWidth, posY, iconSmallWidth, iconSmallHeight,
+        CombineHUD.UV.SLASH)
     self.Slash = HUDElement.new(self.iconSlash)
 
     posX = posX + iconSmallWidth + iconMarginWidth
@@ -114,28 +114,35 @@ function CombineHUD:createElements()
 
     posX = posX - iconSmallWidth - iconMarginWidth
     posY = posY + iconSmallHeight + iconMarginWidth
-    self.iconEngineLoad = self:createIcon(self.uiFilename, posX, posY, iconSmallWidth, iconSmallHeight, CombineHUD.UV.ENGINE_LOAD)
+    self.iconEngineLoad = self:createIcon(self.uiFilename, posX, posY, iconSmallWidth, iconSmallHeight,
+        CombineHUD.UV.ENGINE_LOAD)
     self.EngineLoad = HUDElement.new(self.iconEngineLoad)
 
     posY = posY + iconSmallHeight + iconMarginWidth
     self.iconMass2 = self:createIcon(self.uiFilename, posX, posY, iconSmallWidth, iconSmallHeight, CombineHUD.UV.MASS)
     self.Mass2 = HUDElement.new(self.iconMass2)
 
-    self.iconSlash2 = self:createIcon(self.uiFilename, posX + iconMarginWidth, posY, iconSmallWidth, iconSmallHeight, CombineHUD.UV.SLASH)
+    self.iconSlash2 = self:createIcon(self.uiFilename, posX + iconMarginWidth, posY, iconSmallWidth, iconSmallHeight,
+        CombineHUD.UV.SLASH)
     self.Slash2 = HUDElement.new(self.iconSlash2)
 
     posX = posX + iconSmallWidth + iconMarginWidth
-    local operatingTimeWidth, operatingTimeHeight = getNormalizedScreenValues(unpack(SpeedMeterDisplay.SIZE.OPERATING_TIME))
-    local operatingTimeOffsetX, operatingTimeOffsetY = getNormalizedScreenValues(unpack(SpeedMeterDisplay.POSITION.OPERATING_TIME))
+    -- local operatingTimeWidth, operatingTimeHeight = getNormalizedScreenValues(SpeedMeterDisplay.SIZE
+    --     .OPERATING_TIME)
+    -- local operatingTimeOffsetX, operatingTimeOffsetY = getNormalizedScreenValues(SpeedMeterDisplay.POSITION
+    --     .OPERATING_TIME)
+    operatingTimeWidth = 14
+    operatingTimeHeight = 14
     self.iconHour = Overlay.new(g_baseHUDFilename, posX, posY, operatingTimeWidth, operatingTimeHeight)
-    self.iconHour:setUVs(GuiUtils.getUVs(SpeedMeterDisplay.UV.OPERATING_TIME))
+    -- self.iconHour:setUVs(GuiUtils.getUVs(Utils.getNoNil(SpeedMeterDisplay.UV.OPERATING_TIME)))
     self.Hour = HUDElement.new(self.iconHour)
 
     if g_seasons then
         local seasonsModDirectory = g_seasons.modDirectory
         posX = posX - iconSmallWidth - iconMarginWidth
         posY = posY + iconSmallHeight + iconMarginWidth
-        self.iconMoisture = self:createIcon(self.uiFilename, posX, posY, iconSmallWidth, iconSmallHeight, CombineHUD.UV.MOISTURE)
+        self.iconMoisture = self:createIcon(self.uiFilename, posX, posY, iconSmallWidth, iconSmallHeight,
+            CombineHUD.UV.MOISTURE)
         self.Moisture = HUDElement.new(self.iconMoisture)
     end
 
@@ -212,7 +219,6 @@ function CombineHUD:isVehicleActive(vehicle)
     return vehicle == self.vehicle
 end
 
-
 ---Called on mouse event.
 function CombineHUD:update(dt)
     if self.vehicle ~= nil then
@@ -255,10 +261,11 @@ function CombineHUD:drawText()
     setTextColor(unpack(CombineHUD.COLOR.TEXT_WHITE))
     setTextBold(true)
 
-    local posX, posY = self.base:getPosition()
-    local textX = posX + textMarginWidth
-    local textY = posY + paddingHeight + paddingHeight
-    renderText(textX, textY, textSize, string.format("%.1f T/"..g_i18n:getAreaUnit(false), self.yield / g_i18n:getArea(1)))
+    local posX, posY = self:getPosition()
+    local textX      = posX + textMarginWidth
+    local textY      = posY + paddingHeight + paddingHeight
+    renderText(textX, textY, textSize,
+        string.format("%.1f T/" .. g_i18n:getAreaUnit(false), self.yield / g_i18n:getArea(1)))
 
     textY = textY + iconSmallHeight + iconMarginWidth
     if self.engineLoad > 100 and self.engineLoad <= 120 then
@@ -280,7 +287,7 @@ function CombineHUD:drawText()
     renderText(textX, textY, 0.7 * textSize, gameplay)
 
     textY = textY + iconSmallHeight + iconMarginWidth
-    renderText(textX, textY, textSize, string.format("%.1f T/"..self.l10nHour, self.tonPerHour))
+    renderText(textX, textY, textSize, string.format("%.1f T/" .. self.l10nHour, self.tonPerHour))
 
     if g_seasons then
         if g_seasons.weather.cropMoistureContent then
