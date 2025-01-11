@@ -8,8 +8,9 @@
     -->
     <vehicles powerBoost="20">
         <vehicle xmlPath="data/vehicles/andersonGroup/bioBalerWB55/bioBalerWB55.xml" basePerf="0"/>
-       
+        <vehicle xmlPath="data/vehicles/masseyFerguson/mf8570/mf8570.xml" basePerf="50"/>
     </vehicles>
+    
     <powerDependantSpeed isActive="true"/>
     <timeDependantSpeed isActive="true">
         <cereal>
