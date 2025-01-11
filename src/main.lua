@@ -30,17 +30,25 @@ local function loadedMission(mission, node)
 
     combinexp:onMissionLoaded(mission)
 end
-
 local function load(mission)
-    -- print("load(mission)")
-    assert(combinexp == nil)
+    -- Ensure the combinexp variable is not already defined
+    assert(combinexp == nil, "Error: combinexp is already initialized!")
 
+    -- Create a new instance of CombineXP
     combinexp = CombineXP:new(mission, g_i18n, g_inputBinding, g_gui, g_soundManager, modDirectory, modName)
 
-    getfenv(0).g_combinexp = combinexp
+    -- Debug prints for verification
+    print("_G:", _G)
+    print("_G.g_combinexp before set:", _G.g_combinexp)
 
+    -- Set the global reference for CombineXP
+    _G.g_combinexp = combinexp
+
+    -- Debug print to confirm initialization
+    print("CombineXP initialized. g_combinexp set:", _G.g_combinexp)
+
+    -- Register CombineXP as a mod event listener
     addModEventListener(combinexp)
-
 end
 
 local function validateTypes(manager)
