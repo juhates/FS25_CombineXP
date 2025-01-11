@@ -5,9 +5,9 @@ xpCombine.myCurrentModDirectory = g_currentModDirectory;
 xpCombine.modSettingsDir = g_modSettingsDirectory
 xpCombine.modName = g_currentModName
 
-xpCombine.powerBoostArcade = 100;   -- 100% power boost
-xpCombine.powerBoostNormal = 20;    -- 20% power boost (default on FS19)
-xpCombine.powerBoostRealistic = 0;  -- No power boost
+xpCombine.powerBoostArcade = 100;  -- 100% power boost
+xpCombine.powerBoostNormal = 20;   -- 20% power boost (default on FS19)
+xpCombine.powerBoostRealistic = 0; -- No power boost
 
 -- @TEST:
 -- [x] Start threshing without cutter
@@ -82,14 +82,14 @@ function xpCombine:onLoad(savegame)
     self.spec_xpCombine = self[("spec_%s.xpCombine"):format(xpCombine.modName)]
     local spec = self.spec_xpCombine
 
-    local basePerf = 0.    --basePerf=max Ha per Hour wanted in 100% fertilized Wheat
+    local basePerf = 0. --basePerf=max Ha per Hour wanted in 100% fertilized Wheat
 
     -- First load from data xmlFile
     if xpCombine.myCurrentModDirectory then
         local xmlFile = nil
 
         if xpCombine.myCurrentModDirectory then
-            local xmlFilePath = xpCombine.modSettingsDir.."combineXP.xml"
+            local xmlFilePath = xpCombine.modSettingsDir .. "combineXP.xml"
             if fileExists(xmlFilePath) then
                 xmlFile = loadXMLFile("combineXP", xmlFilePath);
             else
@@ -100,30 +100,30 @@ function xpCombine:onLoad(savegame)
         local i = 0
         local xmlVehicleName = ""
         local xmlPath = ""
-        while hasXMLProperty(xmlFile, "combineXP"..string.format(".vehicles.vehicle(%d)", i)) do
-            xmlPath = "combineXP"..string.format(".vehicles.vehicle(%d)", i)
-            xmlVehicleName = getXMLString(xmlFile, xmlPath.."#xmlPath")
+        while hasXMLProperty(xmlFile, "combineXP" .. string.format(".vehicles.vehicle(%d)", i)) do
+            xmlPath = "combineXP" .. string.format(".vehicles.vehicle(%d)", i)
+            xmlVehicleName = getXMLString(xmlFile, xmlPath .. "#xmlPath")
             --> ==Manage DLC & mods thanks to dural==
             --replace $pdlcdir by the full path
             if string.sub(xmlVehicleName, 1, 8):lower() == "$pdlcdir" then
-              --xmlVehicleName = getUserProfileAppPath() .. "pdlc/" .. string.sub(xmlVehicleName, 10)
-              --required for steam users
-              xmlVehicleName = NetworkUtil.convertFromNetworkFilename(xmlVehicleName)
+                --xmlVehicleName = getUserProfileAppPath() .. "pdlc/" .. string.sub(xmlVehicleName, 10)
+                --required for steam users
+                xmlVehicleName = NetworkUtil.convertFromNetworkFilename(xmlVehicleName)
             elseif string.sub(xmlVehicleName, 1, 7):lower() == "$moddir" then
-              xmlVehicleName = NetworkUtil.convertFromNetworkFilename(xmlVehicleName)
+                xmlVehicleName = NetworkUtil.convertFromNetworkFilename(xmlVehicleName)
             end
             --< ======================================
-           if xpCombine.debug then print(self.configFileName.." - "..xmlVehicleName) end
+            if xpCombine.debug then print(self.configFileName .. " - " .. xmlVehicleName) end
             if self.configFileName == xmlVehicleName then
-              basePerf = tonumber(getXMLString(xmlFile, xmlPath.."#basePerf"))
-              break
+                basePerf = tonumber(getXMLString(xmlFile, xmlPath .. "#basePerf"))
+                break
             end
             i = i + 1
         end
     end
 
     if basePerf <= 0 then
-    -- Then motorConfiguration hp
+        -- Then motorConfiguration hp
         local vehicleName = self:getFullName()
         local coef = 1 -- It was 1.5 on FS19, but 1 seems OK
         local keyCategory = "vehicle.storeData.category"
@@ -132,36 +132,44 @@ function xpCombine:onLoad(savegame)
             coef = 12.
         elseif category == "beetVehicles" or category == "beetHarvesting" then
             coef = 0.6
-		elseif category == "potatoVehicles" then
+        elseif category == "potatoVehicles" then
             coef = 0.3
         end
-        local key, motorId = ConfigurationUtil.getXMLConfigurationKey(self.xmlFile, self.configurations.motor, "vehicle.motorized.motorConfigurations.motorConfiguration", "vehicle.motorized", "motor")
+        local key, motorId = ConfigurationUtil.getXMLConfigurationKey(self.xmlFile, self.configurations.motor,
+            "vehicle.motorized.motorConfigurations.motorConfiguration", "vehicle.motorized", "motor")
         local fallbackConfigKey = "vehicle.motorized.motorConfigurations.motorConfiguration(0)"
         local fallbackOldKey = "vehicle"
         local power = nil
         if SpecializationUtil.hasSpecialization(Motorized, self.specializations) then
-            power = ConfigurationUtil.getConfigurationValue(self.xmlFile, key, "", "#hp", nil, fallbackConfigKey, fallbackOldKey)
+            power = ConfigurationUtil.getConfigurationValue(self.xmlFile, key, "", "#hp", nil, fallbackConfigKey,
+                fallbackOldKey)
         end
         if power ~= nil and tonumber(power) > 0 then
             -- print("key "..key)
             -- print("motorId "..motorId)
             -- print("power "..power)
             basePerf = tonumber(power) * coef
-            print("Combine basePerf computed for "..vehicleName.. " from motorConfiguration hp: "..tostring(power).." => "..tostring(basePerf))
+            print("Combine basePerf computed for " ..
+                vehicleName .. " from motorConfiguration hp: " .. tostring(power) .. " => " .. tostring(basePerf))
         else
-        -- Then specs power
+            -- Then specs power
             key = "vehicle.storeData.specs.power"
             local specsPower = self.xmlFile:getValue(key)
             if specsPower ~= nil and tonumber(specsPower) > 0 then
                 basePerf = tonumber(specsPower) * coef
-                print("Combine basePerf computed for "..vehicleName.. " from specs power declared in store: "..tostring(specsPower).." => "..tostring(basePerf))
+                print("Combine basePerf computed for " ..
+                    vehicleName .. " from specs power declared in store: " ..
+                    tostring(specsPower) .. " => " .. tostring(basePerf))
             else
-            -- Then specs neededPower
+                -- Then specs neededPower
                 key = "vehicle.storeData.specs.neededPower"
                 local specsNeededPower = self.xmlFile:getValue(key)
                 if specsNeededPower ~= nil and tonumber(specsNeededPower) > 0 then
                     basePerf = tonumber(specsNeededPower) * coef
-                    print("Combine basePerf computed for "..vehicleName.. " from specs needed power declared in store: "..tostring(specsNeededPower).." => "..tostring(basePerf))
+                    print("Combine basePerf computed for " ..
+                        vehicleName ..
+                        " from specs needed power declared in store: " ..
+                        tostring(specsNeededPower) .. " => " .. tostring(basePerf))
                 end
             end
         end
@@ -170,8 +178,8 @@ function xpCombine:onLoad(savegame)
     spec.mrCombineLimiter = {};
     spec.mrCombineLimiter.totaldistance = 0;
     spec.mrCombineLimiter.totalArea = 0;
-    spec.mrCombineLimiter.avgTime = 1500; --1.5s
-    spec.mrCombineLimiter.distanceForMeasuring = 3; -- 3 meters
+    spec.mrCombineLimiter.avgTime = 1500;                  --1.5s
+    spec.mrCombineLimiter.distanceForMeasuring = 3;        -- 3 meters
     spec.mrCombineLimiter.currentTime = 0;
     spec.mrCombineLimiter.basePerfAvgArea = basePerf / 36; -- m2 per second (fully fertilized)
     spec.mrCombineLimiter.currentAvgArea = 0;
@@ -195,7 +203,7 @@ function xpCombine:onLoad(savegame)
     if spec_powerConsumer then
         -- Set default values to powerConsumer to rev up when starting threshing and overloading
         if spec_powerConsumer.neededMaxPtoPower == nil then
-            spec_powerConsumer.neededMaxPtoPower =  10
+            spec_powerConsumer.neededMaxPtoPower = 10
         end
         if spec_powerConsumer.ptoRpm == nil then
             spec_powerConsumer.ptoRpm = 350
@@ -211,13 +219,16 @@ function xpCombine:getConsumedPtoTorque(superfunc)
 
     local spec = self.spec_xpCombine
     if self.getIsTurnedOn ~= nil and self:getIsTurnedOn() then
-
-        if totalAreaDependantPtoPower>0 and spec.mrCombineLimiter.currentAvgArea>0 then
+        if totalAreaDependantPtoPower > 0 and spec.mrCombineLimiter.currentAvgArea > 0 then
             local areaValue = spec.mrCombineLimiter.currentAvgArea; --relative m2 per second (relative to fertilizer state and crop type)
-            if areaValue>spec.mrCombineLimiter.basePerfAvgArea then
-                areaValue = spec.mrCombineLimiter.basePerfAvgArea + (areaValue-spec.mrCombineLimiter.basePerfAvgArea)^0.8; --smooth power requirement above "maxAvgArea" to avoid "stalling" the engine too often when entering the field too fast while combining
+            if areaValue > spec.mrCombineLimiter.basePerfAvgArea then
+                areaValue = spec.mrCombineLimiter.basePerfAvgArea + (areaValue - spec.mrCombineLimiter.basePerfAvgArea) ^
+                    0.8; --smooth power requirement above "maxAvgArea" to avoid "stalling" the engine too often when entering the field too fast while combining
             end
-            if Vehicle.debugRendering then self.mrDebugCombineLastAreaDependantPtoPower = totalAreaDependantPtoPower * 0.1 * areaValue end
+            if Vehicle.debugRendering then
+                self.mrDebugCombineLastAreaDependantPtoPower = totalAreaDependantPtoPower *
+                    0.1 * areaValue
+            end
         end
     end
 end
@@ -285,11 +296,14 @@ function xpCombine:onUpdate(dt, isActiveForInput, isActiveForInputIgnoreSelectio
         if spec.mrCombineLimiter.currentAvgArea > 0 then
             local areaValue = spec.mrCombineLimiter.currentAvgArea; --relative m2 per second (relative to fertilizer state and crop type)
             if areaValue > spec.mrCombineLimiter.basePerfAvgArea then
-                areaValue = spec.mrCombineLimiter.basePerfAvgArea + (areaValue-spec.mrCombineLimiter.basePerfAvgArea)^0.8; --smooth power requirement above "maxAvgArea" to avoid "stalling" the engine too often when entering the field too fast while combining
+                areaValue = spec.mrCombineLimiter.basePerfAvgArea + (areaValue - spec.mrCombineLimiter.basePerfAvgArea) ^
+                    0.8; --smooth power requirement above "maxAvgArea" to avoid "stalling" the engine too often when entering the field too fast while combining
             end
-            if Vehicle.debugRendering then self.mrDebugCombineLastAreaDependantPtoPower = totalAreaDependantPtoPower * 0.1 * areaValue end
+            if Vehicle.debugRendering then
+                self.mrDebugCombineLastAreaDependantPtoPower = totalAreaDependantPtoPower *
+                    0.1 * areaValue
+            end
         end
-
     end
     if xpCombine.debug then
         local turnedOnPtoPower = 0.
@@ -299,7 +313,11 @@ function xpCombine:onUpdate(dt, isActiveForInput, isActiveForInputIgnoreSelectio
         local tonPerHour = Utils.getNoNil(spec.mrCombineLimiter.tonPerHour, 0.)
         -- spec.speedLimit = Utils.getNoNil(spec.speedLimit, spec.mrGenuineSpeedLimit)
 
-        local str = string.format(" turnedOnPtoPower=%.1f\n speedDependantPtoPowerWhenFilling=%.1f\n chopperPtoPower=%.1f\n areaDependantPtoPower=%.1f\n lastTotalPower=%.1f\n Current Speed Limit=%.1f\n Base Perf=%.0f/Current perf= %.0f\n Ton per Hour=%.1f", turnedOnPtoPower, speedDependantPtoPowerWhenFilling, chopperPtoPower, areaDependantPtoPower, spec.mrCombineLastTotalPower, spec.speedLimit, spec.mrCombineLimiter.basePerfAvgArea*36,spec.mrCombineLimiter.currentAvgArea*36, tonPerHour);
+        local str = string.format(
+            " turnedOnPtoPower=%.1f\n speedDependantPtoPowerWhenFilling=%.1f\n chopperPtoPower=%.1f\n areaDependantPtoPower=%.1f\n lastTotalPower=%.1f\n Current Speed Limit=%.1f\n Base Perf=%.0f/Current perf= %.0f\n Ton per Hour=%.1f",
+            turnedOnPtoPower, speedDependantPtoPowerWhenFilling, chopperPtoPower, areaDependantPtoPower,
+            spec.mrCombineLastTotalPower, spec.speedLimit, spec.mrCombineLimiter.basePerfAvgArea * 36,
+            spec.mrCombineLimiter.currentAvgArea * 36, tonPerHour);
         -- renderText(0.74, 0.75, getCorrectTextSize(0.02), str);
         -- print("totalDistance "..tostring(spec.mrCombineLimiter.totaldistance))
     end
@@ -315,14 +333,15 @@ function xpCombine:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSele
         spec.mrIsCombineSpeedLimitActive = false;
         -- if self:getIsTurnedOn() and self.movingDirection~=-1 then -- and (self:isLowered(true) or self.cutterAllowCuttingWhileRaised) then    --20170427 - check lower/raise state too (especially useful for combine with cutter embedded
         local cutterIsTurnedOn = false
-        for cutter,_ in pairs(spec_combine.attachedCutters) do
+        for cutter, _ in pairs(spec_combine.attachedCutters) do
             if cutter.spec_cutter then
                 local spec_cutter = cutter.spec_cutter
-                cutterIsTurnedOn = self.movingDirection == spec_cutter.movingDirection and self:getLastSpeed() > 0.5 and (spec_cutter.allowCuttingWhileRaised or cutter:getIsLowered(true))
+                cutterIsTurnedOn = self.movingDirection == spec_cutter.movingDirection and self:getLastSpeed() > 0.5 and
+                    (spec_cutter.allowCuttingWhileRaised or cutter:getIsLowered(true))
             end
         end
 
-        if self:getIsTurnedOn() and self.movingDirection~=-1 and cutterIsTurnedOn then
+        if self:getIsTurnedOn() and self.movingDirection ~= -1 and cutterIsTurnedOn then
             --monitor avg every Xs
             -- print("lastArea: "..tostring(spec_combine.lastArea))
             spec.mrCombineLimiter.totalArea = spec.mrCombineLimiter.totalArea + spec.lastRealArea;
@@ -333,7 +352,7 @@ function xpCombine:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSele
             --we want to avoid the combine to reach "high" speed before the limiter has a chance to measure the current AvgArea
             --if we rely only on the time (1.5s between each sample in our case), and we assume the combine actually start harvesting something when the 1st measure is done, the avgarea would be very low and so = no limit, then, during the next 1.5s, the combine can reach "high speed" greater than 10kph, and at 10kph, the combine drive more than 4m between each sample
             --if spec.mrCombineLimiter.currentTime>spec.mrCombineLimiter.avgTime then
-            if spec.mrCombineLimiter.currentTime>spec.mrCombineLimiter.avgTime or spec.mrCombineLimiter.totaldistance>spec.mrCombineLimiter.distanceForMeasuring then
+            if spec.mrCombineLimiter.currentTime > spec.mrCombineLimiter.avgTime or spec.mrCombineLimiter.totaldistance > spec.mrCombineLimiter.distanceForMeasuring then
                 local materialFx = 1;
                 if spec_combine.lastValidInputFruitType ~= FruitType.UNKNOWN then
                     local fruitDesc = g_fruitTypeManager:getFruitTypeByIndex(spec_combine.lastValidInputFruitType)
@@ -358,68 +377,84 @@ function xpCombine:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSele
                     --             13.98                           23.31             T
                     --              8.83                           14.72             T/ha
 
-        -- if Vehicle.debugRendering then
-                    local equivalentSqmPerHour = 3600000 * spec.mrCombineLimiter.totalArea * g_currentMission:getFruitPixelsToSqm() / spec.mrCombineLimiter.currentTime --actually, this is not the real hectare because it is scaled by the fruit converter or fertilizer factor
+                    -- if Vehicle.debugRendering then
+                    local equivalentSqmPerHour = 3600000 * spec.mrCombineLimiter.totalArea *
+                        g_currentMission:getFruitPixelsToSqm() /
+                        spec.mrCombineLimiter
+                        .currentTime --actually, this is not the real hectare because it is scaled by the fruit converter or fertilizer factor
                     --take into account "self.threshingScale" ???
                     local fillType = spec_combine.lastCuttersOutputFillType
                     local desc = g_fillTypeManager:getFillTypeByIndex(fillType)
                     local massPerLiter = desc.massPerLiter
                     spec.mrCombineLimiter.tonPerHour = equivalentSqmPerHour * fruitDesc.literPerSqm * massPerLiter
-                    local yield = spec.lastMultiplier * spec.mrCombineLimiter.totalOutputMass / MathUtil.areaToHa(spec.mrCombineLimiter.totalArea, g_currentMission:getFruitPixelsToSqm())
+                    local yield = spec.lastMultiplier * spec.mrCombineLimiter.totalOutputMass /
+                        MathUtil.areaToHa(spec.mrCombineLimiter.totalArea, g_currentMission:getFruitPixelsToSqm())
                     spec.mrCombineLimiter.yield = yield + (0.02 * yield * math.random(-1, 1))
-                    spec.mrCombineLimiter.engineLoad = spec.mrCombineLimiter.currentAvgArea / spec.mrCombineLimiter.basePerfAvgArea
-        -- end
 
+                    print("yield", yield)
+                    print("mrCombineLimiter.yield", spec.mrCombineLimiter.yield)
+                    print("spec.lastMultiplier", spec.lastMultiplier)
+                    print("spec.mrCombineLimiter.totalOutputMass", spec.mrCombineLimiter.totalOutputMass)
+                    print("spec.mrCombineLimiter.totalArea", spec.mrCombineLimiter.totalArea)
+
+                    spec.mrCombineLimiter.engineLoad = spec.mrCombineLimiter.currentAvgArea /
+                        spec.mrCombineLimiter.basePerfAvgArea
                 end
 
                 -- str = tostring(spec.lastMultiplier).." - "..tostring(spec.mrCombineLimiter.totalArea).." - "..tostring(g_currentMission:getFruitPixelsToSqm()).." - "..tostring(spec.mrCombineLimiter.currentTime)
                 -- print(str)
                 -- 588 = 1000 / 1.7 since max yield = 1.7 base yield when fertilized
-                local avgArea = 500 * spec.mrCombineLimiter.totalArea * materialFx * g_currentMission:getFruitPixelsToSqm() / spec.mrCombineLimiter.currentTime; -- m2 per second (takes into account fertilizer state and so, since our reference capacity is with full yield, we have to multiply by 0.5
+                local avgArea = 500 * spec.mrCombineLimiter.totalArea * materialFx *
+                    g_currentMission:getFruitPixelsToSqm() / spec.mrCombineLimiter.currentTime;                  -- m2 per second (takes into account fertilizer state and so, since our reference capacity is with full yield, we have to multiply by 0.5
                 local avgSpeed = 1000 * spec.mrCombineLimiter.totaldistance / spec.mrCombineLimiter.currentTime; --m/s
                 -- print("avgArea: "..tostring(avgArea).." - ".."avgSpeed: "..tostring(avgSpeed))
                 --20170606 - check the current increase "acceleration" for the avgArea
-                local areaAcc = (avgArea - spec.mrCombineLimiter.currentAvgArea)/spec.mrCombineLimiter.currentTime
+                local areaAcc = (avgArea - spec.mrCombineLimiter.currentAvgArea) / spec.mrCombineLimiter.currentTime
 
                 -- local str = string.format(" currentAvgArea=%.1f\n basePerfAvgArea=%.1f\n avgArea=%.1f\n avgSpeed=%.1f\n areaAcc=%.3f", spec.mrCombineLimiter.currentAvgArea, spec.mrCombineLimiter.basePerfAvgArea, avgArea, avgSpeed, areaAcc);
                 -- print(str)
 
-                if spec.mrCombineLimiter.currentAvgArea>(0.75*spec.mrCombineLimiter.basePerfAvgArea) then
+                if spec.mrCombineLimiter.currentAvgArea > (0.75 * spec.mrCombineLimiter.basePerfAvgArea) then
                     avgArea = 0.5 * spec.mrCombineLimiter.currentAvgArea + 0.5 * avgArea; --small smooth
                 end
 
                 spec.mrCombineLimiter.currentAvgArea = avgArea;
 
-                if avgArea==0 then
+                if avgArea == 0 then
                     spec.speedLimit = spec.mrGenuineSpeedLimit;
                 else
-
                     --local maxAvgArea = spec.mrCombineLimiter.powerBoost * spec.mrCombineLimiter.basePerfAvgArea;
                     local maxAvgArea = (1 + 0.01 * g_combinexp.powerBoost) * spec.mrCombineLimiter.basePerfAvgArea;
                     local predictLimitSet = false
                     --take into account the areaAcc
-                    if areaAcc>0 then
+                    if areaAcc > 0 then
                         --predict in 3s
-                        local predictAvgArea = avgArea + areaAcc*3000
-                        if xpCombine.debug then print("predictAvgArea="..tostring(predictAvgArea) .. " - new speedLimit="..tostring(spec.speedLimit)) end
-                        if predictAvgArea>1.5*maxAvgArea then
-                            spec.speedLimit = math.max(2, math.min(0.95*spec.speedLimit, 0.9*avgSpeed*3.6))
+                        local predictAvgArea = avgArea + areaAcc * 3000
+                        if xpCombine.debug then
+                            print("predictAvgArea=" ..
+                                tostring(predictAvgArea) .. " - new speedLimit=" .. tostring(spec.speedLimit))
+                        end
+                        if predictAvgArea > 1.5 * maxAvgArea then
+                            spec.speedLimit = math.max(2, math.min(0.95 * spec.speedLimit, 0.9 * avgSpeed * 3.6))
                             predictLimitSet = true
-                            if xpCombine.debug then print("set speedLimit "..tostring(spec.speedLimit)) end
+                            if xpCombine.debug then print("set speedLimit " .. tostring(spec.speedLimit)) end
                             --print("predictAvgArea="..tostring(predictAvgArea) .. " - new speedLimit="..tostring(spec.speedLimit))
                         end
                     end
 
                     if not predictLimitSet then
-                        if avgArea>(1.05*maxAvgArea) then
+                        if avgArea > (1.05 * maxAvgArea) then
                             --reduce speedlimit
-                            spec.speedLimit = math.max(2, math.min(spec.speedLimit, avgSpeed*3.6) - 10 * (1 - avgArea/maxAvgArea)^2); --0.1kph step --allow 5% margin to avoid "yo-yo" effect
-                            if xpCombine.debug then print("reduce speedlimit "..tostring(spec.speedLimit)) end
-                        -- elseif (3.6*avgSpeed)>spec.speedLimit and avgArea<maxAvgArea then -- not limited by the engine, nor by the combine capacity
-                        elseif avgArea<maxAvgArea then -- not limited by the engine, nor by the combine capacity
+                            spec.speedLimit = math.max(2,
+                                math.min(spec.speedLimit, avgSpeed * 3.6) - 10 * (1 - avgArea / maxAvgArea) ^ 2); --0.1kph step --allow 5% margin to avoid "yo-yo" effect
+                            print("SPEEDLIMIT : ", spec.speedLimit)
+                            if xpCombine.debug then print("reduce speedlimit " .. tostring(spec.speedLimit)) end
+                            -- elseif (3.6*avgSpeed)>spec.speedLimit and avgArea<maxAvgArea then -- not limited by the engine, nor by the combine capacity
+                        elseif avgArea < maxAvgArea then -- not limited by the engine, nor by the combine capacity
                             --increase speedlimit
-                            spec.speedLimit = math.min(spec.mrGenuineSpeedLimit, spec.speedLimit + 0.1 * (maxAvgArea / avgArea)^3);
-                            if xpCombine.debug then print("increase speedlimit "..tostring(spec.speedLimit)) end
+                            spec.speedLimit = math.min(spec.mrGenuineSpeedLimit,
+                                spec.speedLimit + 0.1 * (maxAvgArea / avgArea) ^ 3);
+                            if xpCombine.debug then print("increase speedlimit " .. tostring(spec.speedLimit)) end
                         end
                     end
                 end
@@ -432,7 +467,6 @@ function xpCombine:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSele
                 spec.lastRealArea = 0;
                 spec.lastMultiplier = 1;
             end
-
         else
             spec.speedLimit = spec.mrGenuineSpeedLimit;
             spec.mrCombineLimiter.currentAvgArea = 0;
@@ -441,7 +475,6 @@ function xpCombine:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSele
         end
         self:raiseDirtyFlags(spec.dirtyFlag)
     end
-
 end
 
 -- Adjust harvesting speedLimit based on several criterias
@@ -474,7 +507,8 @@ function xpCombine:getSpeedLimit(superfunc, onlyIfWorking)
                 spec_xpCombine.mrGenuineSpeedLimit = limit
             end
             spec_xpCombine.mrCombineLimiter.highMoisture = false
-            local fruitType = g_fruitTypeManager:getFruitTypeIndexByFillTypeIndex(self_vehicle:getFillUnitFillType(spec_combine.fillUnitIndex))
+            local fruitType = g_fruitTypeManager:getFruitTypeIndexByFillTypeIndex(self_vehicle:getFillUnitFillType(
+                spec_combine.fillUnitIndex))
             if limit < math.huge and fruitType ~= nil and fruitType ~= FruitType.UNKNOWN and not spec_combine.allowThreshingDuringRain then
                 local loadLimit = limit
                 -- print("speedLimit                 : "..tostring(limit))
@@ -498,6 +532,7 @@ function xpCombine:getSpeedLimit(superfunc, onlyIfWorking)
     end
     return limit, doCheckSpeedLimit
 end
+
 Vehicle.getSpeedLimit = Utils.overwrittenFunction(Vehicle.getSpeedLimit, xpCombine.getSpeedLimit)
 
 -- Reduce speedLimit based on moisture given by Seasons and fruitType
@@ -541,10 +576,12 @@ function xpCombine:getTimeDependantSpeed(fruitType, defaultSpeedLimit)
 end
 
 -- Compute totalOutputMass needed for yield computation
-function xpCombine:addCutterArea(superfunc, area, realArea, inputFruitType, outputFillType, strawRatio, strawGroundType, farmId, cutterLoad)
+function xpCombine:addCutterArea(superfunc, area, realArea, inputFruitType, outputFillType, strawRatio, strawGroundType,
+                                 farmId, cutterLoad)
     local spec = self.spec_xpCombine
 
-    local ret = superfunc(self, area, realArea, inputFruitType, outputFillType, strawRatio, strawGroundType, farmId, cutterLoad)
+    local ret = superfunc(self, area, realArea, inputFruitType, outputFillType, strawRatio, strawGroundType, farmId,
+        cutterLoad)
 
     spec.lastRealArea = realArea
     -- if xpCombine.debug then print("area: "..tostring(area).." - realArea: "..tostring(realArea)) end
@@ -572,6 +609,7 @@ function xpCombine:getCanBeTurnedOn(superfunc, superFunc)
 
     return superFunc(self)
 end
+
 Combine.getCanBeTurnedOn = Utils.overwrittenFunction(Combine.getCanBeTurnedOn, xpCombine.getCanBeTurnedOn)
 
 -- Prevent cutter to start and move down when starting the combine threshing
@@ -596,7 +634,8 @@ function xpCombine:startThreshing(superfunc)
     end
 
     if spec_combine.threshingStartAnimation ~= nil and self.playAnimation ~= nil then
-        self:playAnimation(spec_combine.threshingStartAnimation, spec_combine.threshingStartAnimationSpeedScale, self:getAnimationTime(spec_combine.threshingStartAnimation), true)
+        self:playAnimation(spec_combine.threshingStartAnimation, spec_combine.threshingStartAnimationSpeedScale,
+            self:getAnimationTime(spec_combine.threshingStartAnimation), true)
     end
 
     if self.isClient then
@@ -633,7 +672,8 @@ function xpCombine:stopThreshing(superfunc)
     -- end
 
     if spec_combine.threshingStartAnimation ~= nil and spec_combine.playAnimation ~= nil then
-        self:playAnimation(spec_combine.threshingStartAnimation, -spec_combine.threshingStartAnimationSpeedScale, self:getAnimationTime(spec_combine.threshingStartAnimation), true)
+        self:playAnimation(spec_combine.threshingStartAnimation, -spec_combine.threshingStartAnimationSpeedScale,
+            self:getAnimationTime(spec_combine.threshingStartAnimation), true)
     end
 
     SpecializationUtil.raiseEvent(self, "onStopThreshing")
@@ -650,8 +690,8 @@ function xpCombine:onDraw(superFunc, isActiveForInput, isActiveForInputIgnoreSel
     -- end
     if spec and self:getIsTurnedOn() then
         local hud = g_combinexp.hud
-        hud:setVehicle(self)
-        hud:drawText()
+        -- hud:setVehicle(self)
+        -- hud:drawText()
         if g_combinexp.timeDependantSpeed.isActive and spec.mrCombineLimiter.highMoisture then
             g_currentMission:showBlinkingWarning(g_i18n:getText("warning_highMoistureAtThisTime"), 2000)
         end
@@ -661,7 +701,8 @@ function xpCombine:onDraw(superFunc, isActiveForInput, isActiveForInputIgnoreSel
             for _, cutter in pairs(spec_combine.attachedCutters) do
                 if cutter.getIsTurnedOn ~= nil and cutter:getIsTurnedOn() then
                     local spec_cutter = cutter.spec_cutter
-                    local isEffectActive = self.movingDirection == spec_cutter.movingDirection and self:getLastSpeed() > 0.5 and (spec_cutter.allowCuttingWhileRaised or cutter:getIsLowered(true))
+                    local isEffectActive = self.movingDirection == spec_cutter.movingDirection and
+                        self:getLastSpeed() > 0.5 and (spec_cutter.allowCuttingWhileRaised or cutter:getIsLowered(true))
                     cutterIsTurnedOn = isEffectActive
                     break
                 end
@@ -689,12 +730,13 @@ function xpCombine:getConsumingLoad(superFunc)
     local value, count = superFunc(self)
     local totalPower = 0
     if self.spec_dischargeable ~= nil and self.spec_dischargeable.currentDischargeState ~= Dischargeable.DISCHARGE_STATE_OFF then
-        totalPower = totalPower + 10 --self.xpCombineUnloadingAugerPtoPower;
+        totalPower = totalPower + 10   --self.xpCombineUnloadingAugerPtoPower;
     end
-    totalPower = totalPower / 56.5487;        --540*math.pi/30 = 56.5487
+    totalPower = totalPower / 56.5487; --540*math.pi/30 = 56.5487
 
     return value + totalPower, count + 1
 end
+
 -- Combine.getConsumingLoad = Utils.overwrittenFunction(Combine.getConsumingLoad, xpCombine.getConsumingLoad)
 
 function xpCombine:removeActionEvents(superFunc, ...)
