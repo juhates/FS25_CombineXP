@@ -133,14 +133,15 @@ Fixed in v1.0.0.3
         <sourceFile filename="src/main.lua" />
 
         <!-- omat -->
-        <sourceFile filename="CombineHUD.lua"/>
-        <sourceFile filename="CombineSettings.lua"/>
-        <sourceFile filename="CombineXP.lua"/>
-        <sourceFile filename="xpCombineEvent.lua"/>
-        <sourceFile filename="xpCombine.lua"/>
-        <sourceFile filename="xpCombineStateRequestEvent.lua"/>
-        <sourceFile filename="xpCutter.lua"/>
+        <sourceFile filename="src/CombineHUD.lua"/>
+        <sourceFile filename="src/CombineSettings.lua"/>
+        <sourceFile filename="src/CombineXP.lua"/>
+        <sourceFile filename="src/xpCombineEvent.lua"/>
+        <sourceFile filename="src/xpCombine.lua"/>
+        <sourceFile filename="src/xpCombineStateRequestEvent.lua"/>
+        <sourceFile filename="src/xpCutter.lua"/>
     </extraSourceFiles>
+
 
     <l10n>
         <text name="warning_firstStartThreshing">
