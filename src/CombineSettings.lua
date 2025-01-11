@@ -1,4 +1,3 @@
-
 ---@class CombineSettings
 CombineSettings = {}
 
@@ -31,7 +30,8 @@ function CombineSettings:load()
     FSBaseMission.saveSavegame = Utils.appendedFunction(FSBaseMission.saveSavegame, CombineSettings.saveSettings)
 
     -- Game Settings Menu
-    InGameMenuGameSettingsFrame.onFrameOpen = Utils.appendedFunction(InGameMenuGameSettingsFrame.onFrameOpen, CombineSettings.initGameSettingsGui)
+    InGameMenuGameSettingsFrame.onFrameOpen = Utils.appendedFunction(InGameMenuGameSettingsFrame.onFrameOpen,
+        CombineSettings.initGameSettingsGui)
 
     -- General Settings Menu
     -- InGameMenuGeneralSettingsFrame.onFrameOpen = Utils.appendedFunction(InGameMenuGeneralSettingsFrame.onFrameOpen, CombineSettings.initGeneralSettingsGui)
@@ -58,7 +58,7 @@ function CombineSettings:initGameSettingsGui()
 
         settingTitle:setText(g_i18n:getText('combineGameplaySetting'))
         toolTip:setText(g_i18n:getText('combineGameplayTooltip'))
-        
+
         local gameplay = 1
         if g_combinexp.powerBoost == xpCombine.powerBoostNormal then
             gameplay = 2
@@ -118,15 +118,17 @@ function CombineSettings:saveSettings()
     if xpCombine.myCurrentModDirectory then
         local xmlFile = nil
         if xpCombine.myCurrentModDirectory then
-            local xmlFilePath = modSettingsDir.."combineXP.xml"
+            local xmlFilePath = modSettingsDir .. "combineXP.xml"
             if fileExists(xmlFilePath) then
                 xmlFile = XMLFile.load("combineXP", xmlFilePath);
             else
-                print("Error: Cannot save settings to "..xmlFilePath)
+                print("Error: Cannot save settings to " .. xmlFilePath)
             end
-            xmlFile:setInt("combineXP.vehicles"..string.format("#powerBoost"), g_combinexp.powerBoost)
-            xmlFile:setBool("combineXP.powerDependantSpeed" .. string.format("#isActive"), g_combinexp.powerDependantSpeed.isActive)
-            xmlFile:setBool("combineXP.timeDependantSpeed" .. string.format("#isActive"), g_combinexp.timeDependantSpeed.isActive)
+            xmlFile:setInt("combineXP.vehicles" .. string.format("#powerBoost"), g_combinexp.powerBoost)
+            xmlFile:setBool("combineXP.powerDependantSpeed" .. string.format("#isActive"),
+                g_combinexp.powerDependantSpeed.isActive)
+            xmlFile:setBool("combineXP.timeDependantSpeed" .. string.format("#isActive"),
+                g_combinexp.timeDependantSpeed.isActive)
             xmlFile:save()
         end
     end
@@ -136,7 +138,8 @@ function CombineSettings:onSettingsStateChanged(state, element, isChangedUp)
     if CombineSettings.debug then print("CombineSettings:onSettingsStateChanged") end
 
     if element.id == "combineGameplay" then
-        if CombineSettings.debug then print("Gameplay state: " .. tostring(state)) end
+        -- if CombineSettings.debug then print("Gameplay state: " .. tostring(state)) end
+        if CombineSettings.debug then print("Gameplay state: " .. tostring(3)) end
         if state == 1 then
             g_combinexp.powerBoost = xpCombine.powerBoostArcade
         elseif state == 2 then
@@ -153,5 +156,6 @@ function CombineSettings:onSettingsStateChanged(state, element, isChangedUp)
         if CombineSettings.debug then print("Daytime state: " .. tostring(state)) end
         g_combinexp.timeDependantSpeed.isActive = element:getIsChecked()
     end
-    g_client:getServerConnection():sendEvent(xpCombineEvent.new(g_combinexp.powerBoost, g_combinexp.powerDependantSpeed.isActive, g_combinexp.timeDependantSpeed.isActive))
+    g_client:getServerConnection():sendEvent(xpCombineEvent.new(g_combinexp.powerBoost,
+        g_combinexp.powerDependantSpeed.isActive, g_combinexp.timeDependantSpeed.isActive))
 end
