@@ -1,6 +1,6 @@
 ﻿xpCombine = {};
 
-xpCombine.debug = false --true --
+xpCombine.debug = true --true --
 xpCombine.myCurrentModDirectory = g_currentModDirectory;
 xpCombine.modSettingsDir = g_modSettingsDirectory
 xpCombine.modName = g_currentModName
@@ -479,14 +479,13 @@ end
 
 -- Adjust harvesting speedLimit based on several criterias
 function xpCombine:getSpeedLimit(superfunc, onlyIfWorking)
-    -- if xpCombine.debug then print("xpCombine:getSpeedLimit: "..tostring(g_combinexp.powerBoost).." - "..tostring(g_combinexp.powerDependantSpeed.isActive).." - "..tostring(g_combinexp.timeDependantSpeed.isActive)) end
     local spec_combine = self.spec_combine
     local spec_xpCombine = self.spec_xpCombine
     local self_vehicle = self
     local limit, doCheckSpeedLimit = superfunc(self, onlyIfWorking)
-    -- print(self:getFullName().." "..tostring(limit))
+    print(tostring(limit), tostring(doCheckSpeedLimit))
+
     if spec_xpCombine == nil then
-        -- Manage FS22_RealSpeedLimit mod
         if self.rootVehicle then
             spec_combine = self.rootVehicle.spec_combine
             spec_xpCombine = self.rootVehicle.spec_xpCombine
@@ -494,42 +493,36 @@ function xpCombine:getSpeedLimit(superfunc, onlyIfWorking)
             self_vehicle = self.rootVehicle
         end
     end
-    if spec_xpCombine then
-        local isTurnedOn = self_vehicle:getIsTurnedOn()
-        if isTurnedOn then
-            if g_combinexp.powerDependantSpeed.isActive then
-                spec_xpCombine.mrGenuineSpeedLimit = math.max(1.5 * limit, 18.)
-                if spec_xpCombine.speedLimit and spec_xpCombine.speedLimit > 0 then
-                    limit = spec_xpCombine.speedLimit
-                    -- if xpCombine.debug then print("speedLimit from materialQty: "..tostring(limit)) end
-                end
+
+    if spec_xpCombine and self_vehicle:getIsTurnedOn() then
+        if g_combinexp.powerDependantSpeed.isActive then
+            spec_xpCombine.mrGenuineSpeedLimit = math.max(1.5 * limit, 18.)
+            limit = spec_xpCombine.speedLimit
+            if xpCombine.debug then print("speedLimit from materialQty: " .. tostring(limit)) end
+        else
+            spec_xpCombine.mrGenuineSpeedLimit = limit
+        end
+
+        spec_xpCombine.mrCombineLimiter.highMoisture = false
+        local fruitType = g_fruitTypeManager:getFruitTypeIndexByFillTypeIndex(self_vehicle:getFillUnitFillType(
+            spec_combine.fillUnitIndex))
+        if limit < math.huge and fruitType ~= nil and fruitType ~= FruitType.UNKNOWN and not spec_combine.allowThreshingDuringRain then
+            local loadLimit = limit
+            if g_seasons and g_seasons.weather.cropMoistureContent and g_combinexp.moistureDependantSpeed.isActive then
+                limit = xpCombine:getMoistureDependantSpeed(fruitType, loadLimit)
+                spec_xpCombine.mrCombineLimiter.loadMultiplier = loadLimit / limit
             else
-                spec_xpCombine.mrGenuineSpeedLimit = limit
-            end
-            spec_xpCombine.mrCombineLimiter.highMoisture = false
-            local fruitType = g_fruitTypeManager:getFruitTypeIndexByFillTypeIndex(self_vehicle:getFillUnitFillType(
-                spec_combine.fillUnitIndex))
-            if limit < math.huge and fruitType ~= nil and fruitType ~= FruitType.UNKNOWN and not spec_combine.allowThreshingDuringRain then
-                local loadLimit = limit
-                -- print("speedLimit                 : "..tostring(limit))
-                if g_seasons and g_seasons.weather.cropMoistureContent and g_combinexp.moistureDependantSpeed.isActive then
-                    limit = xpCombine:getMoistureDependantSpeed(fruitType, loadLimit)
+                if g_combinexp.timeDependantSpeed.isActive then
+                    limit = xpCombine:getTimeDependantSpeed(fruitType, loadLimit)
                     spec_xpCombine.mrCombineLimiter.loadMultiplier = loadLimit / limit
-                    -- print("speedLimit from Moisture   : "..tostring(limit))
-                    -- print("loadLimit / limit          : "..tostring(loadLimit / limit))
-                else
-                    if g_combinexp.timeDependantSpeed.isActive then
-                        limit = xpCombine:getTimeDependantSpeed(fruitType, loadLimit)
-                        spec_xpCombine.mrCombineLimiter.loadMultiplier = loadLimit / limit
-                        -- Add warning msg if moisture is high to harvest (depending on time of the day)
-                        spec_xpCombine.mrCombineLimiter.highMoisture = (loadLimit / limit) > 4
-                        -- print("speedLimit from Time       : "..tostring(limit))
-                        -- print("loadLimit / limit          : "..tostring(loadLimit / limit))
-                    end
+                    -- Add warning msg if moisture is high to harvest (depending on time of the day)
+                    spec_xpCombine.mrCombineLimiter.highMoisture = (loadLimit / limit) > 4
                 end
             end
         end
     end
+
+    if xpCombine.debug then print("Palautetaan " .. tostring(limit)) end
     return limit, doCheckSpeedLimit
 end
 
