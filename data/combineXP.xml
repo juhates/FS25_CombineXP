@@ -6,9 +6,9 @@
         when basePerf=0 xpCombine will compute a value based on machine hp (1 * hp)
         powerBoost value between 0 and 100: 0 => no power boost, max load = 100% ; 20 => 20% power boost, max load = 120%
     -->
-    <vehicles powerBoost="20">
+    <vehicles powerBoost="0">
         <vehicle xmlPath="data/vehicles/andersonGroup/bioBalerWB55/bioBalerWB55.xml" basePerf="0"/>
-        <vehicle xmlPath="data/vehicles/masseyFerguson/mf8570/mf8570.xml" basePerf="50"/>
+        <vehicle xmlPath="data/vehicles/masseyFerguson/mf8570/mf8570.xml" basePerf="0"/>
     </vehicles>
     
     <powerDependantSpeed isActive="true"/>
