@@ -30,9 +30,11 @@ function CombineSettings:load()
     FSBaseMission.saveSavegame = Utils.appendedFunction(FSBaseMission.saveSavegame, CombineSettings.saveSettings)
 
     -- Game Settings Menu
-    InGameMenuGameSettingsFrame.onFrameOpen = Utils.appendedFunction(InGameMenuGameSettingsFrame.onFrameOpen,
-        CombineSettings.initGameSettingsGui)
-
+    local enableInGameSettings = false
+    if enableInGameSettings == true then
+        InGameMenuGameSettingsFrame.onFrameOpen = Utils.appendedFunction(InGameMenuGameSettingsFrame.onFrameOpen,
+            CombineSettings.initGameSettingsGui)
+    end
     -- General Settings Menu
     -- InGameMenuGeneralSettingsFrame.onFrameOpen = Utils.appendedFunction(InGameMenuGeneralSettingsFrame.onFrameOpen, CombineSettings.initGeneralSettingsGui)
     -- if g_server == nil then
