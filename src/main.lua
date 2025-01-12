@@ -1,14 +1,5 @@
 local modDirectory = g_currentModDirectory
 local modName = g_currentModName
-
-source(modDirectory .. "src/CombineXP.lua")
-source(modDirectory .. "src/xpCombine.lua")
-source(modDirectory .. "src/xpCutter.lua")
-source(modDirectory .. "src/CombineHUD.lua")
-source(modDirectory .. "src/CombineSettings.lua")
-source(modDirectory .. "src/xpCombineEvent.lua")
-source(modDirectory .. "src/xpCombineStateRequestEvent.lua")
-
 local combinexp
 
 local function isEnabled()
